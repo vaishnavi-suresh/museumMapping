@@ -102,7 +102,7 @@ airport.init(
         },
         id:{
             type:DataTypes.STRING,
-            autoIndex:true,
+            autoIncrement:true,
             primaryKey:true
         },
         city_id:{

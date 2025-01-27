@@ -1,0 +1,162 @@
+//create a set of CRUD uperations
+//This is assuming all of the API data is in the correct format
+
+import {artwork,museum,city,airport, artwork} from './models.js';
+//ARTWORK CRUD
+//create
+export const createArtwork = async function (payload) {
+    const newArtwork = await artwork.create(payload);
+    return newArtwork;
+}
+
+//Update
+export  const updateArtwork =  async function (qId,partialPayload){
+    const oldArtwork = await artwork.findByPk(qId);
+    if (!oldArtwork){
+        throw new Error('no artwork found')
+    }
+    const newArtwork = await artwork.update(partialPayload,{
+        where:{
+            id:qId
+        }
+    });
+    return newArtwork;
+}
+
+//Read
+export const requestArtwork = async function (qId){
+    const newArtwork = await artwork.findByPk(qId);
+    if (! newArtwork){
+        throw new Error('no artwork found');
+    }
+    return newArtwork;
+
+}
+
+//Delete
+export const deleteArtwork = async function(qId){
+    const deletedArtwork = await artwork.destroy({
+        where:{qId}
+    });
+    return deletedArtwork;
+}
+
+//CITY CRUD
+//create
+export const createCity = async function (payload) {
+    const newCity = await city.create(payload);
+    return newCity;
+}
+
+//Update
+export  const updateCity =  async function (qId,partialPayload){
+    const oldCity = await city.findByPk(qId);
+    if (!oldCity){
+        throw new Error('no city found')
+    }
+    const newCity = await city.update(partialPayload,{
+        where:{
+            name: qId
+        }
+    });
+    return newCity;
+}
+
+//Read
+export const requestCity = async function (qId){
+    const newCity = await city.findByPk(qId);
+    if (! newCity){
+        throw new Error('no city found');
+    }
+    return newCity;
+
+}
+
+//Delete
+export const deleteCity = async function(qId){
+    const deletedCity = await city.destroy({
+        where:{qId}
+    });
+    return deletedCity;
+}
+
+
+//MUSEUM CRUD
+//create
+export const createMuseum = async function (payload) {
+    const newMuseum = await museum.create(payload);
+    return newMuseum;
+}
+
+//Update
+export  const updateMuseum =  async function (qName,partialPayload){
+    const oldMuseum = await museum.findByPk(qName);
+    if (!oldMuseum){
+        throw new Error('no museum found')
+    }
+    const newMuseum = await museum.update(partialPayload,{
+        where:{
+            name: qName
+        }
+    });
+    return newMuseum;
+}
+
+//Read
+export const requestMuseum = async function (qName){
+    const newMuseum = await museum.findByPk(qName);
+    if (! newMuseum){
+        throw new Error('no museum found');
+    }
+    return newMuseum;
+
+}
+
+//Delete
+export const deleteMuseum = async function(qName){
+    const deletedMuseum = await museum.destroy({
+        where:{qName}
+    });
+    return deletedMuseum;
+}
+
+
+//AIRPORT CRUD
+//create
+export const createAirport = async function (payload) {
+    const newAirport = await airport.create(payload);
+    return newAirport;
+}
+
+//Update
+export  const updateAirport =  async function (qId,partialPayload){
+    const oldAirport = await airport.findByPk(qId);
+    if (!oldAirport){
+        throw new Error('no airport found')
+    }
+    const newAirport = await airport.update(partialPayload,{
+        where:{
+            name: qId
+        }
+    });
+    return newAirport;
+}
+
+//Read
+export const requestAirport = async function (qId){
+    const newAirport = await airport.findByPk(qId);
+    if (! newAirport){
+        throw new Error('no airport found');
+    }
+    return newAirport;
+
+}
+
+//Delete
+export const deleteAirport = async function(qId){
+    const deletedAirport = await airport.destroy({
+        where:{qId}
+    });
+    return deletedAirport;
+}
+
