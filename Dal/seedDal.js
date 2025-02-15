@@ -5,7 +5,7 @@
 
 //This is assuming all of the API data is in the correct format
 
-import {artwork,museum,city,airport, artwork} from './models.js';
+const {artwork,museum,city,airport, artwork, routes} = require( './models.js');
 //ARTWORK CRUD
 //create
 export const createArtwork = async function (payload) {
@@ -164,3 +164,37 @@ export const deleteAirport = async function(qId){
     return deletedAirport;
 }
 
+//ROUTES CRUD
+
+export const createRoute = async function(payload){
+    const newRoute = await routes.create(payload);
+    return newRoute;
+};
+
+//Update
+export const updateRoute = async function (starting, ending, partialPayload){
+    const oldRoute = routes.findByPk(starting_id = starting, ending_id = ending);
+    if (!oldRoute){
+        throw new Error('no route found');
+    }
+    const newRoute = await routes.update(partialPayload, {where:{
+        starting_id: starting,
+        ending_id: ending
+    }});
+    return newRoute
+};
+
+//Read
+export const requestRoute = async function (starting, ending){
+    const newRoute = routes.findByPk(starting_id = starting, ending_id = ending);
+    return newRoute;
+}
+
+//Delete
+export const deleteRoute = async function (starting, ending){
+    const deletedRoute = routes.destroy({where:{
+        starting_id : starting,
+        ending_id : ending
+    }})
+    return deletedRoute;
+}

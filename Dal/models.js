@@ -3,6 +3,7 @@ class artwork extends Model {};
 class museum extends Model{};
 class city extends Model {};
 class airport extends Model{};
+class routes extends Model{};
 
 artwork.init(
     {
@@ -25,9 +26,7 @@ artwork.init(
         artist:{
             type: DataTypes.STRING,
         },
-        keywords:{
-            type:DataTypes.ARRAY(DataTypes.STRING)
-        },
+
         museum_name:{
             type: DataTypes.STRING,
             references:{
@@ -73,13 +72,11 @@ city.init(
         },
         city:{
             type:DataTypes.STRING,
-            allowNull: false,
-            primaryKey:true
+            allowNull: false
         },
         state:{
             type:DataTypes.STRING,
-            allowNull: false,
-            primaryKey: true
+            allowNull: false
         },
         country:{
             type:DataTypes.STRING,
@@ -116,4 +113,31 @@ airport.init(
         modelName:'airport'
     }
 );
-module.exports = {artwork,museum,city,airport};
+
+routes.init(
+    {
+        starting_id:{
+            type: DataTypes.INTEGER,
+            primaryKey: true
+        },
+        ending_id:{
+            type: DataTypes.INTEGER,
+            primaryKey: true
+        },
+        shortest_time:{
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        cheapest_price:{
+            type: DataTypes.INTEGER,
+            allowNull:false
+        },
+        cost_score:{
+            type: DataTypes.INTEGER,
+            allowNull:false
+
+        }
+    }
+)
+module.exports = {artwork,museum,city,airport,routes};
+
