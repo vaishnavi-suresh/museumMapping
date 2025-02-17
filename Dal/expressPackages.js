@@ -6,6 +6,8 @@ const {Sequelize ,DataTypes,Model} = require('sequelize');
 const app = express();
 const axios = require('axios');
 let xappToken;
+const port = process.env.PORT || 5432;
+
 
 async function getKey(){
   try {
@@ -15,18 +17,29 @@ async function getKey(){
     console.log(error);
   }
 }
+let sequelize = "";
+if (process.env.EXTERNAL_DATABASE_URL){
+  sequelize =new  Sequelize(process.env.EXTERNAL_DATABASE_URL,{
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      },
+    },
+    logging:false
+  });
 
-
-let sequelize =new  Sequelize(process.env.EXTERNAL_DATABASE_URL,
+} else{
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PW,
     {
-        dialect: "postgres", // Specify the dialect
-        dialectOptions: {
-          ssl: {
-            require: true,
-            rejectUnauthorized: false, // For managed databases like Render or Heroku
-          },
-        }
-      }
+      host: 'localhost',
+      dialect: 'postgres',
+    },);
+}
 
-);
+
 module.exports={sequelize,express,DataTypes, Model,getKey};

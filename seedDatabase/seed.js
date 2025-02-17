@@ -24,7 +24,7 @@ async function getSearchData (simpleQuery){
     let next = "https://api.artsy.net/api/artworks?page=1&total_count=1";
     console.log(next);
     try{
-        await sequelize.sync();
+        await sequelize.sync({force:true});
 
     }catch (err){
         console.log(err);
