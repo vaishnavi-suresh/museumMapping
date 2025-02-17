@@ -7,7 +7,6 @@ const axiosRetry = require("axios-retry").default;
 const CRUD = require( '../Dal/seedDal.js');
 const {sequelize} = require('../Dal/expressPackages.js');
 
-console.log(sequelize);
 
 axiosRetry(axios, {retries: 3, retryDelay: axiosRetry.exponentialDelay});
 
@@ -15,6 +14,23 @@ async function getLocation(name){
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}&addressdetails=1&limit=1`
     const locResp = await axios.get(url);
     return locResp.data[0].address;
+}
+async function showAll(){
+    const tables = await sequelize.getQueryInterface().showAllTables();
+    console.log(tables);
+    for (let table of tables){
+        const[results] = await sequelize.query(`SELECT * FROM ${table}`);
+        console.table(results);
+    }
+}
+
+function changeUndef(library){
+    for (let key in library){
+        if (library[key] == undefined){
+            library[key]=null;
+        }
+    }
+    return library;
 }
 
 
@@ -38,7 +54,10 @@ async function getSearchData (simpleQuery){
         }
     });
     next = response.data._links.next.href;
+    let count = 0;
     for(const piece of  response.data._embedded.artworks){
+        console.log(count)
+        count ++;
         //save title, date, artists (follow api call, save first name), museum name (collecting_institution)
         const response2 = await axios.get(piece._links.genes.href, {
             headers: {
@@ -61,10 +80,32 @@ async function getSearchData (simpleQuery){
                 
                 //create object function call
                 //put in DB
-            const artworkPL = {title: piece.title, year: piece.date,artist: artistName, musuem_name : piece.collecting_institution.split(', ')[0]};
-            const address = await getLocation(piece.collecting_institution.split(', ')[0]);
-            //if no city for this place, 
-            const cityPL = {city: address.city, state: address.state, country: address.country}
+            if (piece.title && piece.collecting_institution){
+                let artworkPL = {name: piece.title, year: piece.date,artist: artistName, museum_name : piece.collecting_institution.split(', ')[0]};
+                artworkPL = changeUndef(artworkPL);
+                const address = await getLocation(piece.collecting_institution.split(', ')[0]);
+                //if no city for this place, 
+                let cityPL = {city: address.city, state: address.state, country: address.country};
+                cityPL = changeUndef(cityPL);
+                
+
+
+
+                const newCity = await CRUD.createCity(cityPL);
+                    
+                
+                let museumPL = {name: piece.collecting_institution.split(', ')[0], city_id: newCity.id};
+                museumPL = changeUndef(museumPL);
+                let newMuseum;
+                try{
+                    newMuseum = await CRUD.requestMuseum(piece.collecting_institution.split(', ')[0])
+                } catch(error){
+                    newMuseum = await CRUD.createMuseum(museumPL);
+
+                }
+                await CRUD.createArtwork(artworkPL);
+            }
+            
         }
     } 
     // initialize sequelize instance and add the payloads into the database. 
@@ -73,10 +114,8 @@ async function getSearchData (simpleQuery){
 
 async function seedDatabases (simpleQuery){
     jsonRes =  await getSearchData(simpleQuery);
-
-
-    
-
+    showAll();
 }
 
 seedDatabases('impressionism');
+

@@ -10,7 +10,12 @@ const { artwork, museum, city, routes } = require('./models.js');
 //ARTWORK CRUD
 //create
 const createArtwork = async function (payload) {
-    const newArtwork = await artwork.create(payload);
+    let newArtwork=await artwork.findOne({where:payload});
+
+    
+    if(!newArtwork){
+        newArtwork = await artwork.create(payload);
+    }
     return newArtwork;
 }
 
@@ -49,7 +54,11 @@ const deleteArtwork = async function(qId){
 //CITY CRUD
 //create
 const createCity = async function (payload) {
-    const newCity = await city.create(payload);
+    let newCity = await city.findOne({where:payload});
+    if(newCity==null){
+        newCity = await city.create(payload);
+
+    }
     return newCity;
 }
 
@@ -76,6 +85,13 @@ const requestCity = async function (qId){
     return newCity;
 
 }
+const requestCityByName = async function (payload){
+    const newCity = await city.findOne({where:payload});
+    if (!newCity){
+        throw new Error('no city found');
+    }
+    return newCity
+}
 
 //Delete
 const deleteCity = async function(qId){
@@ -89,7 +105,12 @@ const deleteCity = async function(qId){
 //MUSEUM CRUD
 //create
 const createMuseum = async function (payload) {
-    const newMuseum = await museum.create(payload);
+    let newMuseum = await museum.findOne({where:payload});
+    
+    if(!newMuseum){
+        newMuseum = await museum.create(payload);
+
+    }
     return newMuseum;
 }
 
@@ -129,7 +150,10 @@ const deleteMuseum = async function(qName){
 //ROUTES CRUD
 
 const createRoute = async function(payload){
-    const newRoute = await routes.create(payload);
+    let newRoute = await findOne({where:payload});
+    if (!newRoute){
+        newRoute = await routes.create(payload);
+    }
     return newRoute;
 };
 
@@ -161,5 +185,5 @@ const deleteRoute = async function (starting, ending){
     return deletedRoute;
 }
 module.exports = {createArtwork, updateArtwork, deleteArtwork, requestArtwork, createCity, requestCity, updateCity, deleteCity,
-    createMuseum, requestMuseum, updateMuseum, deleteMuseum, createRoute, requestRoute, updateRoute, deleteRoute
+    createMuseum, requestMuseum, updateMuseum, deleteMuseum, createRoute, requestRoute, updateRoute, deleteRoute, requestCityByName
 };

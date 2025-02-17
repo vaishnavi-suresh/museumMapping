@@ -10,12 +10,10 @@ const port = process.env.PORT || 5432;
 
 
 async function getKey(){
-  try {
-    const response = await axios.post(process.env.ARTSY_API_URL);
-    return response.data.token;
-  } catch (error){
-    console.log(error);
-  }
+
+  const response = await axios.post(process.env.ARTSY_API_URL);
+  return response.data.token;
+
 }
 let sequelize = "";
 if (process.env.EXTERNAL_DATABASE_URL){

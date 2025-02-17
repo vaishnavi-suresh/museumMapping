@@ -66,7 +66,6 @@ artwork.init(
         },
         year:{
             type: DataTypes.INTEGER,
-            allowNull: false
 
         },
         artist:{
@@ -75,6 +74,7 @@ artwork.init(
 
         museum_name:{
             type: DataTypes.STRING,
+            allowNull:false,
             references:{
                 model:museum,
                 key:'name'
