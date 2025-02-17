@@ -78,22 +78,13 @@ async function getSearchData (simpleQuery){
             }
 
                 
-                //create object function call
-                //put in DB
             if (piece.title && piece.collecting_institution){
                 let artworkPL = {name: piece.title, year: piece.date,artist: artistName, museum_name : piece.collecting_institution.split(', ')[0]};
                 artworkPL = changeUndef(artworkPL);
                 const address = await getLocation(piece.collecting_institution.split(', ')[0]);
-                //if no city for this place, 
                 let cityPL = {city: address.city, state: address.state, country: address.country};
                 cityPL = changeUndef(cityPL);
-                
-
-
-
                 const newCity = await CRUD.createCity(cityPL);
-                    
-                
                 let museumPL = {name: piece.collecting_institution.split(', ')[0], city_id: newCity.id};
                 museumPL = changeUndef(museumPL);
                 let newMuseum;
@@ -108,7 +99,6 @@ async function getSearchData (simpleQuery){
             
         }
     } 
-    // initialize sequelize instance and add the payloads into the database. 
         
     };
 
