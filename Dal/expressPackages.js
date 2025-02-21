@@ -1,10 +1,10 @@
-const dotenv = require('dotenv');
-const request = require('superagent');
+import dotenv from 'dotenv';
+import request  from 'superagent';
 dotenv.config({path: '../.env'});
-const express = require('express');
-const {Sequelize ,DataTypes,Model} = require('sequelize');
+import express from 'express';
+import  {Sequelize ,DataTypes,Model}  from 'sequelize';
 const app = express();
-const axios = require('axios');
+import  axios from 'axios';
 let xappToken;
 const port = process.env.PORT || 5432;
 
@@ -40,4 +40,4 @@ if (process.env.EXTERNAL_DATABASE_URL){
 }
 
 
-module.exports={sequelize,express,DataTypes, Model,getKey};
+export {sequelize,express,DataTypes, Model,getKey};

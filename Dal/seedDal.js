@@ -5,7 +5,7 @@
 
 //This is assuming all of the API data is in the correct format
 
-const { artwork, museum, city, routes } = require('./models.js');
+import { artwork, museum, city, routes } from './models.js';
 
 //ARTWORK CRUD
 //create
@@ -184,6 +184,6 @@ const deleteRoute = async function (starting, ending){
     }})
     return deletedRoute;
 }
-module.exports = {createArtwork, updateArtwork, deleteArtwork, requestArtwork, createCity, requestCity, updateCity, deleteCity,
+export default {createArtwork, updateArtwork, deleteArtwork, requestArtwork, createCity, requestCity, updateCity, deleteCity,
     createMuseum, requestMuseum, updateMuseum, deleteMuseum, createRoute, requestRoute, updateRoute, deleteRoute, requestCityByName
 };

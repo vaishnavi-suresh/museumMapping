@@ -1,4 +1,4 @@
-const{ sequelize, DataTypes,Model} =require( './expressPackages');
+import { sequelize, DataTypes,Model} from  './expressPackages.js';
 class city extends Model {};
 class museum extends Model{};
 class artwork extends Model {};
@@ -60,12 +60,12 @@ artwork.init(
 
         },
         name:{
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(1000),
             allowNull: false
 
         },
         year:{
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
 
         },
         artist:{
@@ -125,5 +125,5 @@ routes.init(
         modelName:'routes'
     }
 )
-module.exports = {artwork,museum,city,routes};
+export {artwork,museum,city,routes};
 

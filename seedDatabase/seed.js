@@ -1,25 +1,32 @@
-const dotenv = require('dotenv');
-const request = require('superagent');
-const axios = require('axios');
+import  dotenv from'dotenv';
+import axios  from 'axios';
 dotenv.config({path:'../.env'});
-const {getKey} = require( '../Dal/expressPackages.js');
-const axiosRetry = require("axios-retry").default;
-const CRUD = require( '../Dal/seedDal.js');
-const {sequelize} = require('../Dal/expressPackages.js');
+import {getKey,sequelize} from '../Dal/expressPackages.js';
+import  axiosRetry from "axios-retry";
+import  CRUD  from  '../Dal/seedDal.js';
+import pLimit from 'p-limit';
 
-
-axiosRetry(axios, {retries: 3, retryDelay: axiosRetry.exponentialDelay});
+axiosRetry(axios, {retries: 5, retryDelay: axiosRetry.exponentialDelay});
 
 async function getLocation(name){
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}&addressdetails=1&limit=1`
     const locResp = await axios.get(url);
-    return locResp.data[0].address;
+    try{
+        if (locResp.data[0].address.city && locResp.data[0].address.country){
+            return locResp.data[0].address;
+        } else{
+            return null
+        }
+    }
+    catch (error){
+        return null;
+    }
 }
 async function showAll(){
     const tables = await sequelize.getQueryInterface().showAllTables();
     console.log(tables);
     for (let table of tables){
-        const[results] = await sequelize.query(`SELECT * FROM ${table}`);
+        const[results] = await sequelize.query(`SELECT COUNT( * ) FROM ${table}`);
         console.table(results);
     }
 }
@@ -35,53 +42,45 @@ function changeUndef(library){
 
 
 
-async function getSearchData (simpleQuery){
-    const key = await getKey();
-    let next = "https://api.artsy.net/api/artworks?page=1&total_count=1";
-    console.log(next);
-    try{
-        await sequelize.sync({force:true});
-
-    }catch (err){
-        console.log(err);
-    }
-    
-
-    const response = await axios.get(next, {
-        headers: {
-            "Accept": "application/json",
-            "X-Xapp-Token": key
-        }
-    });
-    next = response.data._links.next.href;
-    let count = 0;
+async function getSearchData (key,response, simpleQuery){
     for(const piece of  response.data._embedded.artworks){
-        console.log(count)
-        count ++;
         //save title, date, artists (follow api call, save first name), museum name (collecting_institution)
-        const response2 = await axios.get(piece._links.genes.href, {
-            headers: {
-                "Accept": "application/json",
-                "X-Xapp-Token": key
-            }
-        });
+        let response2;
+        try{
+                response2 = await axios.get(piece._links.genes.href, {
+                    headers: {
+                        "Accept": "application/json",
+                        "X-Xapp-Token": key
+                    }
+                });
+        }
+        catch(err){
+            continue;
+        }
         if(piece.collecting_institution &&JSON.stringify(response2.data._embedded.genes).indexOf(simpleQuery) != -1) {
-            const artistRes = await axios.get(piece._links.artists.href, {
-                headers: {
-                    "Accept": "application/json",
-                    "X-Xapp-Token": key
-                }
-            });
+            let artistRes;
+            try{
+                artistRes = await axios.get(piece._links.artists.href, {
+                    headers: {
+                        "Accept": "application/json",
+                        "X-Xapp-Token": key
+                    }
+                });
+            }
+            catch(err){
+                continue;
+            }
             let artistName = null;
             if (artistRes.data._embedded.artists[0]){
                 artistName = artistRes.data._embedded.artists[0].name;
             }
+            const address = await getLocation(piece.collecting_institution.split(', ')[0]);
+
 
                 
-            if (piece.title && piece.collecting_institution){
+            if (piece.title && piece.collecting_institution&& address){
                 let artworkPL = {name: piece.title, year: piece.date,artist: artistName, museum_name : piece.collecting_institution.split(', ')[0]};
                 artworkPL = changeUndef(artworkPL);
-                const address = await getLocation(piece.collecting_institution.split(', ')[0]);
                 let cityPL = {city: address.city, state: address.state, country: address.country};
                 cityPL = changeUndef(cityPL);
                 const newCity = await CRUD.createCity(cityPL);
@@ -103,9 +102,41 @@ async function getSearchData (simpleQuery){
     };
 
 async function seedDatabases (simpleQuery){
-    jsonRes =  await getSearchData(simpleQuery);
+    const key = await getKey();
+    const limit = pLimit(1);
+    let promises = [];
+    try{
+        await sequelize.sync();
+
+    }catch (err){
+        console.log(err);
+    }
+
+    let next =  "https://api.artsy.net/api/artworks?page=1&total_count=1"; 
+    while (next){
+
+        await new Promise (r => setTimeout(r,200));
+        const response = await axios.get(next, {
+            headers: {
+                "Accept": "application/json",
+                "X-Xapp-Token": key
+            }
+        });
+       const promise = limit(() => getSearchData(key,response, simpleQuery));
+       promises.push(promise);
+       console.log(next);
+       next = response.data._links.next ? response.data._links.next.href : null;
+
+    
+    }
+
+    await Promise.allSettled(promises);
     showAll();
 }
 
-seedDatabases('impressionism');
+showAll();
+
+seedDatabases('painting');
+
+
 
