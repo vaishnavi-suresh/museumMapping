@@ -70,7 +70,7 @@ const updateCity =  async function (qId,partialPayload){
     }
     const newCity = await city.update(partialPayload,{
         where:{
-            name: qId
+            id: qId
         }
     });
     return newCity;
