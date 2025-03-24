@@ -107,19 +107,14 @@ routes.init(
                 key:'id'
             }
         },
+        route_info:{
+            type:DataTypes.STRING(5000),
+            allowNull: false
+        },
         shortest_time:{
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        cheapest_price:{
-            type: DataTypes.INTEGER,
-            allowNull:false
-        },
-        cost_score:{
-            type: DataTypes.INTEGER,
-            allowNull:false
-
-        }
     }, {
         sequelize,
         modelName:'routes'
